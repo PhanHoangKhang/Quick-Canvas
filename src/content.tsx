@@ -11,7 +11,6 @@ let host: HTMLElement | null = null;
 let shadowRoot: ShadowRoot | null = null;
 let reactRoot: Root | null = null;
 let explainButton: HTMLButtonElement | null = null;
-let selectedRange: Range | null = null;
 let cardOpen = false;
 
 function initializeShadowDOM() {
@@ -50,25 +49,9 @@ function removeCard() {
 }
 
 function closeCard() {
-  const range = selectedRange;
   cardOpen = false;
   removeCard();
-
-  requestAnimationFrame(() => {
-    if (
-      !range ||
-      !range.startContainer.isConnected ||
-      !range.endContainer.isConnected
-    ) {
-      return;
-    }
-
-    const selection = window.getSelection();
-    if (!selection) return;
-
-    selection.removeAllRanges();
-    selection.addRange(range);
-  });
+  window.getSelection()?.removeAllRanges();
 }
 
 function createCard(text: string, rect: DOMRect) {
@@ -199,7 +182,6 @@ function handleSelection() {
   const selection = window.getSelection();
 
   if (!selection || selection.isCollapsed) {
-    selectedRange = null;
     removeButton();
     return;
   }
@@ -207,14 +189,12 @@ function handleSelection() {
   const text = selection.toString().trim();
 
   if (!text) {
-    selectedRange = null;
     removeButton();
     return;
   }
 
   const range = selection.getRangeAt(0);
   const rect = range.getBoundingClientRect();
-  selectedRange = range.cloneRange();
 
   createButton(rect, text);
 }
