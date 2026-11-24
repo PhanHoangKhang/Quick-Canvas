@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Quicktick",
+  "version": "0.1.0",
+  "description": "Canvas Learning Companion",
+  "permissions": [],
+  "host_permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["https://rmit.instructure.com/*"],
+      "js": ["src/content.tsx"],
+      "run_at": "document_idle"
+    }
+  ]
+}

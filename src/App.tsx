@@ -1,8 +1,12 @@
-
 import { useState } from "react";
 import "./App.css";
 
-export default function App() {
+interface AppProps {
+  selectedText: string;
+  onClose: () => void;
+}
+
+export default function App({ selectedText, onClose }: AppProps) {
   const [question, setQuestion] = useState("");
 
   return (
@@ -19,7 +23,11 @@ export default function App() {
           </div>
         </div>
 
-        <button className="qt-icon-button" aria-label="Close">
+        <button
+          className="qt-icon-button"
+          aria-label="Close"
+          onClick={onClose}
+        >
           ×
         </button>
       </header>
@@ -30,8 +38,7 @@ export default function App() {
         <span className="qt-label">SELECTED TEXT</span>
 
         <div className="qt-selected-text">
-          “Consensus mechanisms ensure that all nodes in a
-          distributed network agree on a single state.”
+          {selectedText}
         </div>
       </section>
 
@@ -42,22 +49,7 @@ export default function App() {
         </div>
 
         <p className="qt-description">
-          A consensus mechanism is a way for computers
-          in a network to agree on which information is
-          correct, even when they don't trust each other.
-        </p>
-      </section>
-
-      <section className="qt-example">
-        <span className="qt-example-title">
-          <span>✦</span> Think of it like this
-        </span>
-
-        <p>
-          Imagine 10 students keeping the same shared
-          notebook. Before adding a new transaction,
-          they need to agree that the entry is valid so
-          everyone has the same version.
+          Your explanation will appear here.
         </p>
       </section>
 
