@@ -75,7 +75,7 @@ export default function App({
       </form>
 
       <footer className="qt-footer">
-        <span>Quicktick</span>
+        <span>Quick Canvas</span>
         <span>Canvas Learning Companion</span>
       </footer>
     </div>

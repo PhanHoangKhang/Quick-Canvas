@@ -95,9 +95,9 @@ function createButton(rect: DOMRect, text: string) {
     background: "#9D65FD",
     color: "#FFFFFF",
 
-    fontSize: "13px",
+    fontSize: "14px",
     fontWeight: "600",
-    fontFamily: "Arial, sans-serif",
+    fontFamily: '"Nunito", sans-serif',
 
     cursor: "pointer",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
