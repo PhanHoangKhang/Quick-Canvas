@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.css";
+import logo from "./assets/logo.png";
 
 interface AppProps {
   selectedText: string;
@@ -14,20 +15,16 @@ export default function App({ selectedText, onClose }: AppProps) {
       <header className="qt-header">
         <div className="qt-brand">
           <div className="qt-logo">
-            <span>✦</span>
+            <img src={logo} alt="Quicktick logo" />
           </div>
 
           <div>
-            <h1>Quicktick</h1>
+            <h1>Quick Canvas</h1>
             <p>Understand. Instantly.</p>
           </div>
         </div>
 
-        <button
-          className="qt-icon-button"
-          aria-label="Close"
-          onClick={onClose}
-        >
+        <button className="qt-icon-button" aria-label="Close" onClick={onClose}>
           ×
         </button>
       </header>
@@ -37,31 +34,16 @@ export default function App({ selectedText, onClose }: AppProps) {
       <section className="qt-section">
         <span className="qt-label">SELECTED TEXT</span>
 
-        <div className="qt-selected-text">
-          {selectedText}
-        </div>
+        <div className="qt-selected-text">{selectedText}</div>
       </section>
 
       <section className="qt-section">
         <div className="qt-section-title">
-          <span className="qt-sparkle">✦</span>
           <h2>Simple explanation</h2>
         </div>
 
-        <p className="qt-description">
-          Your explanation will appear here.
-        </p>
+        <p className="qt-description">Your explanation will appear here.</p>
       </section>
-
-      <div className="qt-actions">
-        <button className="qt-secondary-button">
-          <span>▤</span> Simpler
-        </button>
-
-        <button className="qt-secondary-button">
-          <span>♧</span> Another example
-        </button>
-      </div>
 
       <div className="qt-divider" />
 
