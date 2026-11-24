@@ -12,6 +12,7 @@ let shadowRoot: ShadowRoot | null = null;
 let reactRoot: Root | null = null;
 let explainButton: HTMLButtonElement | null = null;
 let selectedRange: Range | null = null;
+let cardOpen = false;
 
 function initializeShadowDOM() {
   if (host) return;
@@ -50,6 +51,7 @@ function removeCard() {
 
 function closeCard() {
   const range = selectedRange;
+  cardOpen = false;
   removeCard();
 
   requestAnimationFrame(() => {
@@ -72,6 +74,7 @@ function closeCard() {
 function createCard(text: string, rect: DOMRect) {
   initializeShadowDOM();
   removeCard();
+  cardOpen = true;
 
   const container = document.createElement("div");
   container.id = "quicktick-card";
@@ -191,6 +194,8 @@ function createButton(rect: DOMRect, text: string) {
 }
 
 function handleSelection() {
+  if (cardOpen) return;
+
   const selection = window.getSelection();
 
   if (!selection || selection.isCollapsed) {
@@ -208,8 +213,8 @@ function handleSelection() {
   }
 
   const range = selection.getRangeAt(0);
-  selectedRange = range.cloneRange();
   const rect = range.getBoundingClientRect();
+  selectedRange = range.cloneRange();
 
   createButton(rect, text);
 }
