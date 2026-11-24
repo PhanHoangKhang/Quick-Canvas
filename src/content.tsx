@@ -21,17 +21,37 @@ function removeCard() {
 }
 
 function createCard(text: string, rect: DOMRect) {
-  console.log("Quicktick: createCard triggered");
-
   removeCard();
 
   const container = document.createElement("div");
   container.id = CONTAINER_ID;
 
+  const cardWidth = 380;
+  const estimatedCardHeight = 480;
+  const gap = 12;
+
+  let top = rect.top - estimatedCardHeight - gap;
+
+  // If there isn't enough room above, place it below
+  if (top < 12) {
+    top = rect.bottom + gap;
+  }
+
+  // Keep the card within the viewport
+  top = Math.max(
+    12,
+    Math.min(top, window.innerHeight - estimatedCardHeight - 12)
+  );
+
+  const left = Math.max(
+    12,
+    Math.min(rect.left, window.innerWidth - cardWidth - 12)
+  );
+
   Object.assign(container.style, {
     position: "fixed",
-    top: `${Math.max(12, Math.min(rect.bottom + 60, window.innerHeight - 420))}px`,
-    left: `${Math.max(12, Math.min(rect.left, window.innerWidth - 372))}px`,
+    top: `${top}px`,
+    left: `${left}px`,
     zIndex: "2147483647",
   });
 
@@ -40,7 +60,10 @@ function createCard(text: string, rect: DOMRect) {
   reactRoot = createRoot(container);
 
   reactRoot.render(
-    <App selectedText={text} onClose={removeCard} />
+    <App
+      selectedText={text}
+      onClose={removeCard}
+    />
   );
 }
 
