@@ -40,12 +40,12 @@ function createCard(text: string, rect: DOMRect) {
   // Keep the card within the viewport
   top = Math.max(
     12,
-    Math.min(top, window.innerHeight - estimatedCardHeight - 12)
+    Math.min(top, window.innerHeight - estimatedCardHeight - 12),
   );
 
   const left = Math.max(
     12,
-    Math.min(rect.left, window.innerWidth - cardWidth - 12)
+    Math.min(rect.left, window.innerWidth - cardWidth - 12),
   );
 
   Object.assign(container.style, {
@@ -63,7 +63,8 @@ function createCard(text: string, rect: DOMRect) {
     <App
       selectedText={text}
       onClose={removeCard}
-    />
+      logoSrc={chrome.runtime.getURL("logo.png")}
+    />,
   );
 }
 
@@ -81,15 +82,9 @@ function createButton(rect: DOMRect, text: string) {
     position: "fixed",
 
     // Position below the selected text
-    top: `${Math.max(
-      8,
-      Math.min(rect.bottom + 8, window.innerHeight - 48)
-    )}px`,
+    top: `${Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - 48))}px`,
 
-    left: `${Math.max(
-      8,
-      Math.min(rect.left, window.innerWidth - 140)
-    )}px`,
+    left: `${Math.max(8, Math.min(rect.left, window.innerWidth - 140))}px`,
 
     zIndex: "2147483647",
 
@@ -145,10 +140,7 @@ function createButton(rect: DOMRect, text: string) {
   document.body.appendChild(button);
 
   console.log("Button appended:", button);
-  console.log(
-    "Button in DOM:",
-    document.getElementById(BUTTON_ID)
-  );
+  console.log("Button in DOM:", document.getElementById(BUTTON_ID));
 }
 
 function handleSelection() {

@@ -11,5 +11,11 @@
       "js": ["src/content.tsx"],
       "run_at": "document_idle"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["logo.png"],
+      "matches": ["https://rmit.instructure.com/*"]
+    }
   ]
 }
