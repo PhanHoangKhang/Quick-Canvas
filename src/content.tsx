@@ -1,30 +1,63 @@
 import { createRoot } from "react-dom/client";
 import type { Root } from "react-dom/client";
 import App from "./App";
+import appStyles from "./App.css?inline";
 
-const BUTTON_ID = "quicktick-explain-trigger";
-const CONTAINER_ID = "quicktick-container";
+const HOST_ID = "quicktick-host";
 
 console.log("QUICKTICK CONTENT SCRIPT LOADED");
 
+let host: HTMLElement | null = null;
+let shadowRoot: ShadowRoot | null = null;
 let reactRoot: Root | null = null;
+let explainButton: HTMLButtonElement | null = null;
+
+function initializeShadowDOM() {
+  if (host) return;
+
+  host = document.createElement("div");
+  host.id = HOST_ID;
+
+  Object.assign(host.style, {
+    position: "fixed",
+    inset: "0",
+    zIndex: "2147483647",
+    pointerEvents: "none",
+  });
+
+  document.body.appendChild(host);
+
+  shadowRoot = host.attachShadow({ mode: "open" });
+
+  const styleElement = document.createElement("style");
+  styleElement.textContent = appStyles;
+
+  shadowRoot.appendChild(styleElement);
+}
 
 function removeButton() {
-  document.getElementById(BUTTON_ID)?.remove();
+  explainButton?.remove();
+  explainButton = null;
 }
 
 function removeCard() {
   reactRoot?.unmount();
   reactRoot = null;
 
-  document.getElementById(CONTAINER_ID)?.remove();
+  shadowRoot?.querySelector("#quicktick-card")?.remove();
 }
 
 function createCard(text: string, rect: DOMRect) {
+  initializeShadowDOM();
   removeCard();
 
   const container = document.createElement("div");
-  container.id = CONTAINER_ID;
+  container.id = "quicktick-card";
+
+  Object.assign(container.style, {
+    position: "fixed",
+    pointerEvents: "auto",
+  });
 
   const cardWidth = 380;
   const estimatedCardHeight = 480;
@@ -32,12 +65,10 @@ function createCard(text: string, rect: DOMRect) {
 
   let top = rect.top - estimatedCardHeight - gap;
 
-  // If there isn't enough room above, place it below
   if (top < 12) {
     top = rect.bottom + gap;
   }
 
-  // Keep the card within the viewport
   top = Math.max(
     12,
     Math.min(top, window.innerHeight - estimatedCardHeight - 12),
@@ -49,13 +80,11 @@ function createCard(text: string, rect: DOMRect) {
   );
 
   Object.assign(container.style, {
-    position: "fixed",
     top: `${top}px`,
     left: `${left}px`,
-    zIndex: "2147483647",
   });
 
-  document.body.appendChild(container);
+  shadowRoot!.appendChild(container);
 
   reactRoot = createRoot(container);
 
@@ -69,26 +98,26 @@ function createCard(text: string, rect: DOMRect) {
 }
 
 function createButton(rect: DOMRect, text: string) {
-  console.log("createButton called:", text);
-
+  initializeShadowDOM();
   removeButton();
 
   const button = document.createElement("button");
-  button.id = BUTTON_ID;
   button.textContent = "✦ Explain";
   button.type = "button";
 
   Object.assign(button.style, {
     position: "fixed",
 
-    // Position below the selected text
-    top: `${Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - 48))}px`,
+    top: `${Math.max(
+      8,
+      Math.min(rect.bottom + 8, window.innerHeight - 48),
+    )}px`,
 
-    left: `${Math.max(8, Math.min(rect.left, window.innerWidth - 140))}px`,
+    left: `${Math.max(
+      8,
+      Math.min(rect.left, window.innerWidth - 140),
+    )}px`,
 
-    zIndex: "2147483647",
-
-    // Appearance
     padding: "8px 14px",
     border: "none",
     borderRadius: "10px",
@@ -102,12 +131,10 @@ function createButton(rect: DOMRect, text: string) {
     cursor: "pointer",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
 
-    // Force visibility
     display: "block",
     visibility: "visible",
     opacity: "1",
 
-    // Reset inherited page styles
     margin: "0",
     outline: "none",
     textAlign: "center",
@@ -118,7 +145,6 @@ function createButton(rect: DOMRect, text: string) {
     pointerEvents: "auto",
   });
 
-  // Prevent Canvas from interfering with selection when clicking
   button.addEventListener("mousedown", (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -132,23 +158,16 @@ function createButton(rect: DOMRect, text: string) {
     event.preventDefault();
     event.stopPropagation();
 
-    console.log("Quicktick button clicked!");
-
     createCard(text, rect);
   });
 
-  document.body.appendChild(button);
+  shadowRoot!.appendChild(button);
 
-  console.log("Button appended:", button);
-  console.log("Button in DOM:", document.getElementById(BUTTON_ID));
+  explainButton = button;
 }
 
 function handleSelection() {
-  console.log("mouseup detected");
-
   const selection = window.getSelection();
-
-  console.log("selection:", selection?.toString());
 
   if (!selection || selection.isCollapsed) {
     removeButton();
@@ -164,8 +183,6 @@ function handleSelection() {
 
   const rect = selection.getRangeAt(0).getBoundingClientRect();
 
-  console.log("selection rect:", rect);
-
   createButton(rect, text);
 }
 
@@ -178,10 +195,7 @@ document.addEventListener("keyup", (event) => {
 });
 
 document.addEventListener("mousedown", (event) => {
-  const target = event.target as HTMLElement;
-
-  if (target.closest(`#${BUTTON_ID}`)) return;
-  if (target.closest(`#${CONTAINER_ID}`)) return;
+  if (host?.contains(event.target as Node)) return;
 
   removeButton();
 });
