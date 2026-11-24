@@ -1,122 +1,105 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useState } from "react";
+import "./App.css";
+
+export default function App() {
+  const [question, setQuestion] = useState("");
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="quicktick">
+      <header className="qt-header">
+        <div className="qt-brand">
+          <div className="qt-logo">
+            <span>✦</span>
+          </div>
+
+          <div>
+            <h1>Quicktick</h1>
+            <p>Understand. Instantly.</p>
+          </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+
+        <button className="qt-icon-button" aria-label="Close">
+          ×
         </button>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
+      <div className="qt-divider" />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+      <section className="qt-section">
+        <span className="qt-label">SELECTED TEXT</span>
+
+        <div className="qt-selected-text">
+          “Consensus mechanisms ensure that all nodes in a
+          distributed network agree on a single state.”
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <section className="qt-section">
+        <div className="qt-section-title">
+          <span className="qt-sparkle">✦</span>
+          <h2>Simple explanation</h2>
+        </div>
+
+        <p className="qt-description">
+          A consensus mechanism is a way for computers
+          in a network to agree on which information is
+          correct, even when they don't trust each other.
+        </p>
+      </section>
+
+      <section className="qt-example">
+        <span className="qt-example-title">
+          <span>✦</span> Think of it like this
+        </span>
+
+        <p>
+          Imagine 10 students keeping the same shared
+          notebook. Before adding a new transaction,
+          they need to agree that the entry is valid so
+          everyone has the same version.
+        </p>
+      </section>
+
+      <div className="qt-actions">
+        <button className="qt-secondary-button">
+          <span>▤</span> Simpler
+        </button>
+
+        <button className="qt-secondary-button">
+          <span>♧</span> Another example
+        </button>
+      </div>
+
+      <div className="qt-divider" />
+
+      <form
+        className="qt-input"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!question.trim()) return;
+          console.log(question);
+        }}
+      >
+        <input
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask about this concept..."
+        />
+
+        <button
+          type="submit"
+          disabled={!question.trim()}
+          aria-label="Send question"
+        >
+          ↑
+        </button>
+      </form>
+
+      <footer className="qt-footer">
+        <span>Quicktick</span>
+        <span>Canvas Learning Companion</span>
+      </footer>
+    </div>
+  );
 }
-
-export default App
