@@ -27,7 +27,12 @@ export default function App({
           </div>
         </div>
 
-        <button className="qt-icon-button" aria-label="Close" onClick={onClose}>
+        <button
+          className="qt-icon-button"
+          aria-label="Close"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={onClose}
+        >
           ×
         </button>
       </header>

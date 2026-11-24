@@ -11,6 +11,7 @@ let host: HTMLElement | null = null;
 let shadowRoot: ShadowRoot | null = null;
 let reactRoot: Root | null = null;
 let explainButton: HTMLButtonElement | null = null;
+let selectedRange: Range | null = null;
 
 function initializeShadowDOM() {
   if (host) return;
@@ -45,6 +46,27 @@ function removeCard() {
   reactRoot = null;
 
   shadowRoot?.querySelector("#quicktick-card")?.remove();
+}
+
+function closeCard() {
+  const range = selectedRange;
+  removeCard();
+
+  requestAnimationFrame(() => {
+    if (
+      !range ||
+      !range.startContainer.isConnected ||
+      !range.endContainer.isConnected
+    ) {
+      return;
+    }
+
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
 }
 
 function createCard(text: string, rect: DOMRect) {
@@ -91,10 +113,12 @@ function createCard(text: string, rect: DOMRect) {
   reactRoot.render(
     <App
       selectedText={text}
-      onClose={removeCard}
+      onClose={closeCard}
       logoSrc={chrome.runtime.getURL("logo.png")}
     />,
   );
+
+  removeButton();
 }
 
 function createButton(rect: DOMRect, text: string) {
@@ -170,6 +194,7 @@ function handleSelection() {
   const selection = window.getSelection();
 
   if (!selection || selection.isCollapsed) {
+    selectedRange = null;
     removeButton();
     return;
   }
@@ -177,16 +202,22 @@ function handleSelection() {
   const text = selection.toString().trim();
 
   if (!text) {
+    selectedRange = null;
     removeButton();
     return;
   }
 
-  const rect = selection.getRangeAt(0).getBoundingClientRect();
+  const range = selection.getRangeAt(0);
+  selectedRange = range.cloneRange();
+  const rect = range.getBoundingClientRect();
 
   createButton(rect, text);
 }
 
-document.addEventListener("mouseup", handleSelection);
+document.addEventListener("mouseup", (event) => {
+  if (host?.contains(event.target as Node)) return;
+  handleSelection();
+});
 
 document.addEventListener("keyup", (event) => {
   if (event.key === "Shift" || event.key.startsWith("Arrow")) {
