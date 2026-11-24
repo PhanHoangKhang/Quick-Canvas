@@ -5,6 +5,8 @@ import App from "./App";
 const BUTTON_ID = "quicktick-explain-trigger";
 const CONTAINER_ID = "quicktick-container";
 
+console.log("QUICKTICK CONTENT SCRIPT LOADED");
+
 let reactRoot: Root | null = null;
 
 function removeButton() {
@@ -19,6 +21,8 @@ function removeCard() {
 }
 
 function createCard(text: string, rect: DOMRect) {
+  console.log("Quicktick: createCard triggered");
+
   removeCard();
 
   const container = document.createElement("div");
@@ -26,14 +30,8 @@ function createCard(text: string, rect: DOMRect) {
 
   Object.assign(container.style, {
     position: "fixed",
-    top: `${Math.min(
-      rect.bottom + 60,
-      window.innerHeight - 450
-    )}px`,
-    left: `${Math.min(
-      rect.left,
-      window.innerWidth - 380
-    )}px`,
+    top: `${Math.max(12, Math.min(rect.bottom + 60, window.innerHeight - 420))}px`,
+    left: `${Math.max(12, Math.min(rect.left, window.innerWidth - 372))}px`,
     zIndex: "2147483647",
   });
 
@@ -42,53 +40,100 @@ function createCard(text: string, rect: DOMRect) {
   reactRoot = createRoot(container);
 
   reactRoot.render(
-    <App
-      selectedText={text}
-      onClose={removeCard}
-    />
+    <App selectedText={text} onClose={removeCard} />
   );
 }
 
 function createButton(rect: DOMRect, text: string) {
+  console.log("createButton called:", text);
+
   removeButton();
 
   const button = document.createElement("button");
   button.id = BUTTON_ID;
   button.textContent = "✦ Explain";
+  button.type = "button";
 
   Object.assign(button.style, {
     position: "fixed",
-    top: `${rect.bottom + 8}px`,
-    left: `${Math.min(
-      rect.left,
-      window.innerWidth - 120
+
+    // Position below the selected text
+    top: `${Math.max(
+      8,
+      Math.min(rect.bottom + 8, window.innerHeight - 48)
     )}px`,
+
+    left: `${Math.max(
+      8,
+      Math.min(rect.left, window.innerWidth - 140)
+    )}px`,
+
     zIndex: "2147483647",
-    padding: "8px 12px",
+
+    // Appearance
+    padding: "8px 14px",
     border: "none",
     borderRadius: "10px",
     background: "#9D65FD",
     color: "#FFFFFF",
+
     fontSize: "13px",
     fontWeight: "600",
     fontFamily: "Arial, sans-serif",
+
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+
+    // Force visibility
+    display: "block",
+    visibility: "visible",
+    opacity: "1",
+
+    // Reset inherited page styles
+    margin: "0",
+    outline: "none",
+    textAlign: "center",
+    lineHeight: "normal",
+    appearance: "none",
+    WebkitAppearance: "none",
+
+    pointerEvents: "auto",
   });
 
+  // Prevent Canvas from interfering with selection when clicking
   button.addEventListener("mousedown", (event) => {
     event.preventDefault();
+    event.stopPropagation();
   });
 
-  button.addEventListener("click", () => {
+  button.addEventListener("mouseup", (event) => {
+    event.stopPropagation();
+  });
+
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    console.log("Quicktick button clicked!");
+
     createCard(text, rect);
   });
 
   document.body.appendChild(button);
+
+  console.log("Button appended:", button);
+  console.log(
+    "Button in DOM:",
+    document.getElementById(BUTTON_ID)
+  );
 }
 
 function handleSelection() {
+  console.log("mouseup detected");
+
   const selection = window.getSelection();
+
+  console.log("selection:", selection?.toString());
 
   if (!selection || selection.isCollapsed) {
     removeButton();
@@ -104,10 +149,7 @@ function handleSelection() {
 
   const rect = selection.getRangeAt(0).getBoundingClientRect();
 
-  if (!rect.width || !rect.height) {
-    removeButton();
-    return;
-  }
+  console.log("selection rect:", rect);
 
   createButton(rect, text);
 }
