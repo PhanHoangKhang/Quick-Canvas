@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 interface CanvasContext {
@@ -28,47 +28,52 @@ export default function App({
   const [error, setError] = useState("");
   const [displayedExplanation, setDisplayedExplanation] = useState("");
 
-  async function explainConcept(userQuestion = "") {
-    if (!selectedText.trim()) return;
+  const explainConcept = useCallback(
+    async (userQuestion = "") => {
+      if (!selectedText.trim()) return;
 
-    setIsLoading(true);
-    setError("");
+      setIsLoading(true);
+      setError("");
+      setExplanation("");
+      setDisplayedExplanation("");
 
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: selectedText,
-          question: userQuestion,
-          courseContext: canvasContext,
-        }),
-      });
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: selectedText,
+            question: userQuestion,
+            courseContext: canvasContext,
+          }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(
-          data.error || `Request failed with status ${response.status}`,
-        );
+        if (!response.ok) {
+          throw new Error(
+            data.error || `Request failed with status ${response.status}`,
+          );
+        }
+
+        setExplanation(data.explanation);
+      } catch (err) {
+        console.error("Quick Canvas API error:", err);
+
+        setError(err instanceof Error ? err.message : "Something went wrong.");
+      } finally {
+        setIsLoading(false);
       }
-
-      setExplanation(data.explanation);
-    } catch (err) {
-      console.error("QuickTick API error:", err);
-
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+    },
+    [selectedText, canvasContext],
+  );
 
   // Automatically explain selected text when the card opens
   useEffect(() => {
     explainConcept();
-  }, [selectedText]);
+  }, [explainConcept]);
 
   useEffect(() => {
     if (!explanation) {

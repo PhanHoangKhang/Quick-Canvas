@@ -71,9 +71,8 @@ export default {
       if (!success) {
         return new Response(
           JSON.stringify({
-            error: "RATE_LIMIT_EXCEEDED",
-            message:
-              "Too many requests. Please wait a minute before trying again.",
+            error:
+              "Quick Canvas needs a short breather. Please try again in about a minute. ✨",
           }),
           {
             status: 429,
@@ -99,6 +98,23 @@ export default {
     return jsonResponse({ error: "Not Found" }, 404);
   },
 };
+
+async function fetchWithTimeout(url, options, timeoutMs = 15000) {
+  const controller = new AbortController();
+
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 async function handleExplain(request, env, jsonResponse) {
   try {
@@ -127,42 +143,26 @@ async function handleExplain(request, env, jsonResponse) {
     const prompt = `
 You are Quick Canvas, a learning companion for university students.
 
-Your goal is to help students understand a selected concept
-clearly and efficiently without disrupting their learning flow.
+Explain the selected concept clearly and efficiently so students
+can understand it without disrupting their learning flow.
 
 Context:
 - Course: ${courseContext?.courseName || "Unknown course"}
-- Current page: ${courseContext?.pageTitle || "Unknown page"}
-- Document title: ${courseContext?.documentTitle || "Unknown document"}
+- Page: ${courseContext?.pageTitle || "Unknown page"}
+- Document: ${courseContext?.documentTitle || "Unknown document"}
 
-Use the course and page context to better understand the subject,
-the terminology, and the intended learning context.
-Treat this context as supplementary information, not as factual evidence.
-If the context is irrelevant to the selected text or question,
-ignore it and focus on the content itself.
+Use context only as supplementary information. If irrelevant,
+focus on the selected text and the student's question.
 
-Instructions:
-- Explain the concept directly, starting with a clear definition.
-- Cover the essential components, principles, steps, or mechanisms
-  necessary to genuinely understand the concept.
-- Prioritize the most important information instead of explaining
-  every detail.
-- Explain each key component in 1-2 concise sentences.
+Guidelines:
+- Start with a clear, direct definition.
+- Explain the essential principles, components or mechanisms.
 - Use simple language while maintaining technical accuracy.
-- Include one short practical example when useful.
-- Avoid repetition, filler, unnecessary background, and lengthy conclusions.
-- Do not turn the explanation into a full tutorial.
-- Aim for approximately 100-180 words, but use more when necessary
-  to explain complex concepts properly.
-- Ensure factual accuracy and use correct terminology.
-- Use Markdown for readability.
-
-Formatting:
-- Start with a short definition.
-- Use bold labels for key concepts.
-- Use bullet points when explaining multiple components.
-- Keep paragraphs and lists compact.
-- Avoid excessive headings and nested lists.
+- Include a short practical example when useful.
+- Avoid filler, repetition and unnecessary background.
+- Stay focused; do not turn the explanation into a full tutorial.
+- Use compact Markdown with bold labels and bullets when helpful.
+- Aim for 100-180 words, extending only when necessary.
 
 Selected text:
 ${text}
@@ -171,7 +171,7 @@ Student's question:
 ${question?.trim() || "Explain this concept clearly."}
 `;
 
-    const geminiResponse = await fetch(
+    const geminiResponse = await fetchWithTimeout(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
       {
         method: "POST",
@@ -191,12 +191,23 @@ ${question?.trim() || "Explain this concept clearly."}
           },
         }),
       },
+      15000,
     );
 
     const data = await geminiResponse.json();
 
     if (!geminiResponse.ok) {
       console.error("Gemini API error:", data);
+
+      if (geminiResponse.status === 429 || geminiResponse.status === 503) {
+        return jsonResponse(
+          {
+            error:
+              "Quick Canvas is a little busy right now. Please try again in a moment. ✨",
+          },
+          503,
+        );
+      }
 
       return jsonResponse(
         {
@@ -218,6 +229,16 @@ ${question?.trim() || "Explain this concept clearly."}
     return jsonResponse({ explanation });
   } catch (error) {
     console.error("Worker error:", error);
+
+    if (error?.name === "AbortError") {
+      return jsonResponse(
+        {
+          error:
+            "Hmm, that took a little longer than expected. Try again in a moment. ✨",
+        },
+        504,
+      );
+    }
 
     return jsonResponse(
       { error: "Invalid request or internal server error" },

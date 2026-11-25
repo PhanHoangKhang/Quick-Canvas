@@ -50,8 +50,6 @@ function refreshCanvasContext() {
   currentCanvasContext = getCanvasContext();
 }
 
-setInterval(refreshCanvasContext, 1000);
-
 function initializeShadowDOM() {
   if (host) return;
 
@@ -94,6 +92,8 @@ function closeCard() {
 }
 
 function createCard(text: string, rect: DOMRect) {
+  refreshCanvasContext();
+  
   initializeShadowDOM();
   removeCard();
   cardOpen = true;
@@ -215,25 +215,25 @@ function handleSelection() {
 
   const selection = window.getSelection();
 
-  if (!selection || selection.isCollapsed) {
+  if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
     removeButton();
     return;
   }
 
   const text = selection.toString().trim();
 
-  if (!text) {
-    removeButton();
-    return;
-  }
-
-  if (text.length > MAX_SELECTED_CHARACTERS) {
+  if (!text || text.length > MAX_SELECTED_CHARACTERS) {
     removeButton();
     return;
   }
 
   const range = selection.getRangeAt(0);
   const rect = range.getBoundingClientRect();
+
+  if (rect.width === 0 && rect.height === 0) {
+    removeButton();
+    return;
+  }
 
   createButton(rect, text);
 }
