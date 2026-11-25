@@ -263,3 +263,119 @@
 .qt-footer span {
   color: #12121f;
 }
+
+
+.qt-explanation {
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: break-word;
+}
+
+.qt-explanation p {
+  margin: 0 0 12px;
+}
+
+.qt-explanation h1,
+.qt-explanation h2,
+.qt-explanation h3,
+.qt-explanation h4 {
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 700;
+  margin: 16px 0 8px;
+}
+
+.qt-explanation ul,
+.qt-explanation ol {
+  padding-left: 20px;
+  margin: 8px 0 12px;
+}
+
+.qt-explanation li {
+  margin-bottom: 6px;
+}
+
+.qt-explanation li p {
+  margin: 0;
+}
+
+.qt-explanation strong {
+  font-weight: 700;
+}
+
+.qt-explanation code {
+  font-family: monospace;
+  font-size: 13px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.qt-explanation pre {
+  overflow-x: auto;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.qt-explanation blockquote {
+  padding-left: 12px;
+  border-left: 3px solid #9d65fd;
+  margin: 10px 0;
+}
+
+.qt-explanation > :first-child {
+  margin-top: 0;
+}
+
+.qt-explanation > :last-child {
+  margin-bottom: 0;
+}
+
+/* Skeleton loading */
+
+.qt-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.qt-skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+
+  background: linear-gradient(
+    90deg,
+    #ece7f5 25%,
+    #f7f3fc 50%,
+    #ece7f5 75%
+  );
+
+  background-size: 200% 100%;
+  animation: qt-shimmer 1.4s ease-in-out infinite;
+}
+
+.qt-skeleton-long {
+  width: 100%;
+}
+
+.qt-skeleton-medium {
+  width: 75%;
+}
+
+.qt-skeleton-short {
+  width: 45%;
+}
+
+.qt-skeleton-gap {
+  height: 8px;
+}
+
+@keyframes qt-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}

@@ -57,29 +57,36 @@ async function handleExplain(request, env, jsonResponse) {
     }
 
     const prompt = `
-You are QuickTick, a learning companion for university students.
+You are QuickTick, a concise academic learning assistant.
 
-Your goal is to help students understand academic concepts clearly.
+Explain the selected concept directly. Do not greet the user, introduce yourself, or add a concluding message.
 
-Guidelines:
-- Explain concepts in simple, student-friendly language.
-- Break complex ideas into smaller parts.
-- Use examples when they help understanding.
-- Avoid unnecessarily long explanations.
-- Use Markdown formatting when appropriate.
-- If the text lacks context, acknowledge it rather than making assumptions.
+Rules:
+- Start with a direct definition or explanation of the concept.
+- Keep the explanation concise, ideally 100-180 words.
+- Be simple and easy to understand, but do not oversimplify important details.
+- Explain the core mechanism or how it works when relevant.
+- Use one short, concrete example only when it genuinely helps.
+- Avoid unnecessary introductions, repetition, filler, and unrelated information.
+- Use clear Markdown formatting for readability.
+
+Formatting:
+- Use short paragraphs, with blank lines between them.
+- Use ## headings only when there are distinct sections.
+- Use bullet points for 2 or more related items.
+- Bold only important terms.
+- Avoid excessively nested lists.
+- Do not turn every sentence into a bullet point.
 
 Selected text:
-"""
 ${text}
-"""
 
-Student question:
-${question?.trim() || "Explain this concept clearly."}
+Student's question:
+${question?.trim() || "Explain this concept."}
 `;
 
     const geminiResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
       {
         method: "POST",
         headers: {
@@ -93,8 +100,8 @@ ${question?.trim() || "Explain this concept clearly."}
             },
           ],
           generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1000,
+            temperature: 0.5,
+            maxOutputTokens: 800,
           },
         }),
       },
@@ -105,7 +112,12 @@ ${question?.trim() || "Explain this concept clearly."}
     if (!geminiResponse.ok) {
       console.error("Gemini API error:", data);
 
-      return jsonResponse({ error: "Failed to generate explanation" }, 502);
+      return jsonResponse(
+        {
+          error: data.error?.message || "Gemini API request failed",
+        },
+        502,
+      );
     }
 
     const explanation =
