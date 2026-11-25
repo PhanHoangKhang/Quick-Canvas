@@ -20,12 +20,6 @@ interface CanvasContext {
   documentTitle: string;
 }
 
-let currentCanvasContext: CanvasContext = {
-  courseName: "",
-  pageTitle: "",
-  documentTitle: "",
-};
-
 function getCanvasContext(): CanvasContext {
   const breadcrumb = document.querySelector<HTMLElement>("#breadcrumbs");
 
@@ -35,12 +29,12 @@ function getCanvasContext(): CanvasContext {
     .filter(Boolean);
 
   const courseCode = breadcrumbText?.[0] || "";
-  const pageTitle = breadcrumbText?.at(-1) || "";
+  const pageTitle = breadcrumbText?.[1] || "";
 
   const courseName = document.title.trim();
 
   const courseDisplayName = courseCode
-    ? `${courseCode} - ${courseName}`
+    ? `${courseCode} — ${courseName}`
     : courseName;
 
   return {
@@ -50,17 +44,10 @@ function getCanvasContext(): CanvasContext {
   };
 }
 
-currentCanvasContext = getCanvasContext();
-
-let currentUrl = window.location.href;
+let currentCanvasContext: CanvasContext = getCanvasContext();
 
 function refreshCanvasContext() {
-  if (window.location.href === currentUrl) return;
-
-  currentUrl = window.location.href;
   currentCanvasContext = getCanvasContext();
-
-  console.log("[QuickTick] Canvas context updated:", currentCanvasContext);
 }
 
 setInterval(refreshCanvasContext, 1000);
