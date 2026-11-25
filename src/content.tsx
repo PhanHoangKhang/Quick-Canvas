@@ -4,6 +4,7 @@ import App from "./App";
 import appStyles from "./App.css?inline";
 
 const HOST_ID = "quicktick-host";
+const MAX_SELECTED_CHARACTERS = 5000;
 
 console.log("QUICKTICK CONTENT SCRIPT LOADED");
 
@@ -118,15 +119,9 @@ function createButton(rect: DOMRect, text: string) {
   Object.assign(button.style, {
     position: "fixed",
 
-    top: `${Math.max(
-      8,
-      Math.min(rect.bottom + 8, window.innerHeight - 48),
-    )}px`,
+    top: `${Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - 48))}px`,
 
-    left: `${Math.max(
-      8,
-      Math.min(rect.left, window.innerWidth - 140),
-    )}px`,
+    left: `${Math.max(8, Math.min(rect.left, window.innerWidth - 140))}px`,
 
     padding: "8px 14px",
     border: "none",
@@ -189,6 +184,11 @@ function handleSelection() {
   const text = selection.toString().trim();
 
   if (!text) {
+    removeButton();
+    return;
+  }
+
+  if (text.length > MAX_SELECTED_CHARACTERS) {
     removeButton();
     return;
   }
