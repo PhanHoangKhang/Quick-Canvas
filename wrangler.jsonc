@@ -2,5 +2,15 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "quicktick-api",
   "main": "server/worker.js",
-  "compatibility_date": "2026-11-24"
+  "compatibility_date": "2026-11-24",
+  "ratelimits": [
+    {
+      "name": "EXPLAIN_RATE_LIMITER",
+      "namespace_id": "20993434",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ]
 }

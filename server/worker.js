@@ -43,6 +43,49 @@ export default {
     }
 
     if (request.method === "POST" && url.pathname === "/api/explain") {
+      // The Cloudflare binding keeps a separate approximate counter per client
+      // IP and data center. This protects the paid Gemini call from bursts.
+      const limiter = env.EXPLAIN_RATE_LIMITER;
+
+      if (!limiter) {
+        console.error("Rate limiter binding is missing");
+
+        return new Response(
+          JSON.stringify({ error: "Rate limiter unavailable" }),
+          {
+            status: 500,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+      }
+
+      const clientIp = request.headers.get("CF-Connecting-IP") || "unknown";
+
+      const { success } = await limiter.limit({
+        key: clientIp,
+      });
+
+      if (!success) {
+        return new Response(
+          JSON.stringify({
+            error: "RATE_LIMIT_EXCEEDED",
+            message:
+              "Too many requests. Please wait a minute before trying again.",
+          }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+              "Retry-After": "60",
+            },
+          },
+        );
+      }
+
       return handleExplain(request, env, jsonResponse);
     }
 
@@ -82,7 +125,7 @@ async function handleExplain(request, env, jsonResponse) {
     }
 
     const prompt = `
-You are QuickTick, a learning companion for university students.
+You are Quick Canvas, a learning companion for university students.
 
 Your goal is to help students understand a selected concept
 clearly and efficiently without disrupting their learning flow.
