@@ -14,7 +14,7 @@ interface AppProps {
   logoSrc: string;
 }
 
-const API_URL = "http://localhost:8787/api/explain";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function App({
   selectedText,

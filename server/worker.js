@@ -1,5 +1,9 @@
+// npx wrangler secret put GEMINI_API_KEY
+
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -22,7 +26,21 @@ export default {
         },
       });
 
-    const url = new URL(request.url);
+    if (url.pathname === "/api/health" && request.method === "GET") {
+      return new Response(
+        JSON.stringify({
+          status: "ok",
+          service: "QuickTick API",
+          timestamp: new Date().toISOString(),
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    }
 
     if (request.method === "POST" && url.pathname === "/api/explain") {
       return handleExplain(request, env, jsonResponse);
