@@ -379,3 +379,32 @@
     background-position: -200% 0;
   }
 }
+
+.qt-context {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.qt-context-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.qt-context-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #9d65fd;
+}
+
+.qt-context-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #12121f;
+  line-height: 1.5;
+  word-break: break-word;
+}

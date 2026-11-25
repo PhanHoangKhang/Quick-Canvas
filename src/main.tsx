@@ -8,6 +8,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App
       selectedText="Test text"
+      canvasContext={{
+        courseName: "ISYS2099 | ISYS3434",
+        pageTitle: "W5 - Learning Materials: Database Applications",
+        documentTitle: "W5 - Learning Materials: Database Applications",
+      }}
       onClose={() => {}}
       logoSrc={logo}
     />

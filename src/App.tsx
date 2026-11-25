@@ -1,15 +1,27 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
+interface CanvasContext {
+  courseName: string;
+  pageTitle: string;
+  documentTitle: string;
+}
+
 interface AppProps {
   selectedText: string;
+  canvasContext: CanvasContext;
   onClose: () => void;
   logoSrc: string;
 }
 
 const API_URL = "http://localhost:8787/api/explain";
 
-export default function App({ selectedText, onClose, logoSrc }: AppProps) {
+export default function App({
+  selectedText,
+  canvasContext,
+  onClose,
+  logoSrc,
+}: AppProps) {
   const [question, setQuestion] = useState("");
   const [explanation, setExplanation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +43,7 @@ export default function App({ selectedText, onClose, logoSrc }: AppProps) {
         body: JSON.stringify({
           text: selectedText,
           question: userQuestion,
+          courseContext: canvasContext,
         }),
       });
 
@@ -115,6 +128,24 @@ export default function App({ selectedText, onClose, logoSrc }: AppProps) {
           ×
         </button>
       </header>
+
+      <div className="qt-divider" />
+
+      <section className="qt-context">
+        <div className="qt-context-item">
+          <span className="qt-context-label">COURSE</span>
+          <span className="qt-context-value">
+            {canvasContext.courseName || "Unknown course"}
+          </span>
+        </div>
+
+        <div className="qt-context-item">
+          <span className="qt-context-label">CURRENT PAGE</span>
+          <span className="qt-context-value">
+            {canvasContext.pageTitle || "Unknown page"}
+          </span>
+        </div>
+      </section>
 
       <div className="qt-divider" />
 

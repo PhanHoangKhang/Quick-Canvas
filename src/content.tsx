@@ -14,6 +14,57 @@ let reactRoot: Root | null = null;
 let explainButton: HTMLButtonElement | null = null;
 let cardOpen = false;
 
+interface CanvasContext {
+  courseName: string;
+  pageTitle: string;
+  documentTitle: string;
+}
+
+let currentCanvasContext: CanvasContext = {
+  courseName: "",
+  pageTitle: "",
+  documentTitle: "",
+};
+
+function getCanvasContext(): CanvasContext {
+  const breadcrumb = document.querySelector<HTMLElement>("#breadcrumbs");
+
+  const breadcrumbText = breadcrumb?.innerText
+    .trim()
+    .split("\n")
+    .filter(Boolean);
+
+  const courseCode = breadcrumbText?.[0] || "";
+  const pageTitle = breadcrumbText?.at(-1) || "";
+
+  const courseName = document.title.trim();
+
+  const courseDisplayName = courseCode
+    ? `${courseCode} - ${courseName}`
+    : courseName;
+
+  return {
+    courseName: courseDisplayName,
+    pageTitle,
+    documentTitle: document.title.trim(),
+  };
+}
+
+currentCanvasContext = getCanvasContext();
+
+let currentUrl = window.location.href;
+
+function refreshCanvasContext() {
+  if (window.location.href === currentUrl) return;
+
+  currentUrl = window.location.href;
+  currentCanvasContext = getCanvasContext();
+
+  console.log("[QuickTick] Canvas context updated:", currentCanvasContext);
+}
+
+setInterval(refreshCanvasContext, 1000);
+
 function initializeShadowDOM() {
   if (host) return;
 
@@ -100,6 +151,7 @@ function createCard(text: string, rect: DOMRect) {
   reactRoot.render(
     <App
       selectedText={text}
+      canvasContext={currentCanvasContext}
       onClose={closeCard}
       logoSrc={chrome.runtime.getURL("logo.png")}
     />,
